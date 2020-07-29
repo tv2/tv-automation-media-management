@@ -126,7 +126,12 @@ export class MediaManager {
 		this._workFlowGenerators = []
 		this._workFlowGenerators.push(
 			new LocalStorageGenerator(this._availableStorage, this._trackedMedia, settings.mediaFlows || []),
-			new WatchFolderGenerator(this._availableStorage, this._trackedMedia, settings.mediaFlows || []),
+			new WatchFolderGenerator(
+				this._availableStorage,
+				this._trackedMedia,
+				settings.mediaFlows || [],
+				settings.cronJobTime
+			),
 			new ExpectedItemsGenerator(
 				this._availableStorage,
 				this._trackedMedia,
