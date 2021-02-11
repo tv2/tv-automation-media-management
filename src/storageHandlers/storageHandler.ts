@@ -37,6 +37,9 @@ export abstract class File {
 	 */
 	source: StorageType
 
+	/** Frame that media manager should grab for thumbnail preview */
+	previewFrame?: number
+
 	/**
 	 * Return a writable stream that can be written to, to fill the file with contents.
 	 * @abstract
@@ -120,7 +123,7 @@ export abstract class StorageHandler extends EventEmitter {
 	 * @param  name The file name (relative to the storage root)
 	 * @returns Given file handle
 	 */
-	abstract getFile(name: string): Promise<File>
+	abstract getFile(name: string, previewFrame?: number): Promise<File>
 	/**
 	 * Write a file to storage. If a file of the same name already exists, overwrite it.
 	 * @abstract

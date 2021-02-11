@@ -125,7 +125,7 @@ export class WatchFolderGenerator extends LocalStorageGenerator {
 					)
 				}
 
-				return targetStorage.handler.getFile(localFile.name).then(
+				return targetStorage.handler.getFile(localFile.name, localFile.previewFrame).then(
 					file => {
 						return file.getProperties().then(properties => {
 							return localFile.getProperties().then(localProperties => {
@@ -162,7 +162,7 @@ export class WatchFolderGenerator extends LocalStorageGenerator {
 						const storageObject = this._availableStorage.find(as => as.id === sId)
 						if (storageObject) {
 							storageObject.handler
-								.getFile(tmi.name)
+								.getFile(tmi.name, tmi.previewFrame)
 								.then(file => {
 									const workflowId = e.path + '_' + randomId()
 									this.emit(
@@ -243,7 +243,7 @@ export class WatchFolderGenerator extends LocalStorageGenerator {
 										)
 									}
 
-									await targetStorage.handler.getFile(trackedFile.name)
+									await targetStorage.handler.getFile(trackedFile.name, trackedFile.previewFrame)
 								}
 							} catch (e) {
 								this.onAdd(st, {

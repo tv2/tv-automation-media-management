@@ -36,15 +36,17 @@ export class LocalFolderFile implements File {
 	private _url: string
 	private _read: boolean
 	private _write: boolean
+	private _previewFrame?: number
 
 	constructor()
-	constructor(url: string, read: boolean, write: boolean, name?: string)
-	constructor(url?: string, read?: boolean, write?: boolean, name?: string) {
+	constructor(url: string, read: boolean, write: boolean, name?: string, previewFrame?: number)
+	constructor(url?: string, read?: boolean, write?: boolean, name?: string, previewFrame?: number) {
 		if (url) {
 			this._url = url
 			this._name = name || path.basename(url)
 			this._read = !!read
 			this._write = !!write
+			this._previewFrame = previewFrame
 		}
 	}
 
@@ -54,6 +56,10 @@ export class LocalFolderFile implements File {
 
 	get url(): string {
 		return this._url
+	}
+
+	get previewFrame(): number | undefined {
+		return this._previewFrame
 	}
 
 	async getWritableStream(): Promise<stream.Writable> {
@@ -170,14 +176,14 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 		}
 	}
 
-	getFile(name: string): Promise<File> {
+	getFile(name: string, previewFrame?: number): Promise<File> {
 		if (!this._readable) throw Error('This storage is not readable.')
 		return new Promise((resolve, reject) => {
 			const localUrl = path.join(this._basePath, name)
 			fs.stat(localUrl).then(
 				stats => {
 					if (stats.isFile()) {
-						resolve(new LocalFolderFile(localUrl, this._readable, this._writable, name))
+						resolve(new LocalFolderFile(localUrl, this._readable, this._writable, name, previewFrame))
 					} else {
 						reject('Object is not a file')
 					}
@@ -393,7 +399,8 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 			path.join(this._basePath, sourceFile.name),
 			this._readable,
 			this._writable,
-			sourceFile.name
+			sourceFile.name,
+			sourceFile.previewFrame
 		)
 		return newFile
 	}

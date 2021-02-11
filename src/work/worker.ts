@@ -22,6 +22,7 @@ import * as fs from 'fs-extra'
 import * as http from 'http'
 import { MonitorQuantel } from '../monitors/quantel'
 import quantelMetadataTransform from './quantelFormats'
+import { FramesToTimestamp } from './timeConversion'
 
 export interface WorkResult {
 	status: WorkStepStatus
@@ -320,6 +321,13 @@ export class Worker {
 			return this.failStep(`failed to retrieve media object with ID "${fileId}"`, step.action, getError)
 		}
 
+		// Assume first video stream is the one we want
+		const videoTimeBase = doc.mediainfo?.streams?.find(s => s.codec.type === 'video')?.time_base
+		const targetTime =
+			videoTimeBase && step.file.previewFrame
+				? FramesToTimestamp(step.file.previewFrame, videoTimeBase)
+				: undefined
+
 		const destPath = path.join(
 			(this.config.paths && this.config.paths.resources) || '',
 			(this.config.thumbnails && this.config.thumbnails.folder) || 'thumbs',
@@ -368,13 +376,15 @@ export class Worker {
 					? 'ffmpeg.exe'
 					: 'ffmpeg',
 				'-hide_banner',
+				targetTime ? `-ss ${targetTime}` : undefined,
 				`-i "${doc.mediaPath}"`,
 				'-frames:v 1',
-				`-vf thumbnail,scale=${(this.config.thumbnails && this.config.thumbnails.width) || 256}:` +
-					`${(this.config.thumbnails && this.config.thumbnails.height) || -1}`,
+				`-vf ${!targetTime ? 'thumbnail,' : ''}scale=${(this.config.thumbnails &&
+					this.config.thumbnails.width) ||
+					256}:` + `${(this.config.thumbnails && this.config.thumbnails.height) || -1}`,
 				'-threads 1',
 				`"${tmpPath}"`
-			]
+			].filter(a => !!a)
 
 			const { error: execError } = await noTryAsync(
 				() =>

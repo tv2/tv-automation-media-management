@@ -268,7 +268,8 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 			lastSeen: item.lastSeen,
 			lingerTime: item.lingerTime || this.LINGER_TIME,
 			sourceStorageId: flow.sourceId,
-			targetStorageIds: [flow.destinationId]
+			targetStorageIds: [flow.destinationId],
+			previewFrame: item.previewFrame
 		}
 		this._trackedItems
 			.upsert(baseObj._id, (tmi?: TrackedMediaItemDB) => {
@@ -357,7 +358,8 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 			lastSeen: item.lastSeen,
 			lingerTime: item.lingerTime || this.LINGER_TIME,
 			sourceStorageId: flow.sourceId,
-			targetStorageIds: [flow.destinationId]
+			targetStorageIds: [flow.destinationId],
+			previewFrame: item.previewFrame
 		}
 
 		this._trackedItems.getById(fileName).then(
@@ -447,13 +449,13 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 		}
 	}
 
-	private getFile(fileName: string, sourceStorageId: string): Promise<File | undefined> {
+	private getFile(fileName: string, sourceStorageId: string, previewFrame?: number): Promise<File | undefined> {
 		const sourceStorage = this._storages.find(i => i.id === sourceStorageId)
 		if (!sourceStorage)
 			throw new Error(`${this.ident} getFile: Source storage "${sourceStorageId}" could not be found.`)
 
 		return new Promise<File | undefined>((resolve, _reject) => {
-			sourceStorage.handler.getFile(fileName).then(
+			sourceStorage.handler.getFile(fileName, previewFrame).then(
 				file => {
 					resolve(file)
 				},
@@ -479,7 +481,7 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 					.filter(i => tracked.targetStorageIds.indexOf(i.id) >= 0)
 					.forEach(target =>
 						this.emitCopyWorkflow(
-							e.file as File,
+							e.file!,
 							target,
 							tracked.comment,
 							!!e.file && !this.isQuantel(e.file.name),
@@ -609,7 +611,8 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 				lingerTime: i.lingerTime || this.LINGER_TIME,
 				expectedMediaItemId: [i._id],
 				sourceStorageId: flow.sourceId,
-				targetStorageIds: [flow.destinationId]
+				targetStorageIds: [flow.destinationId],
+				previewFrame: i.previewFrame
 			})
 
 			// check if an item doesn't already exist in the list with the same id
@@ -688,7 +691,7 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 							// remove the file from all the storages that contain it as a target
 							.map(j =>
 								j.handler
-									.getFile(i.name)
+									.getFile(i.name, i.previewFrame)
 									.then(f =>
 										retryNumber(() => j.handler.deleteFile(f), this.RETRY_COUNT, this.RETRY_TIMEOUT)
 											.then(() => true)
@@ -836,7 +839,7 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 		if (this.isQuantel(tmi.name)) {
 			if (reason !== 'expectedStorageCheck') {
 				// Avoid duplicate workflows - assuming Q clips are immutable
-				const file = new QuantelStream(tmi.name, tmi.name, true)
+				const file = new QuantelStream(tmi.name, tmi.name, true, tmi.previewFrame)
 				const st = literal<StorageObject>({
 					id: 'quantelPropertiesFromMonitor',
 					support: { read: false, write: false },
@@ -850,7 +853,7 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 		}
 
 		// get file from source storage
-		this.getFile(tmi.name, tmi.sourceStorageId)
+		this.getFile(tmi.name, tmi.sourceStorageId, tmi.previewFrame)
 			.then(file => {
 				if (file && storage) {
 					file.getProperties()
@@ -861,7 +864,7 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 										.filter(i => tmi.targetStorageIds.indexOf(i.id) >= 0)
 										.forEach(i => {
 											// check if the file exists on the target storage
-											i.handler.getFile(tmi.name).then(
+											i.handler.getFile(tmi.name, tmi.previewFrame).then(
 												rFile => {
 													// the file exists on target storage
 													rFile.getProperties().then(
