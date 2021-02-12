@@ -1,4 +1,4 @@
-import { FramesToTimestamp } from '../timeConversion'
+import { FramesToMs, FramesToTimestamp } from '../timeConversion'
 
 describe('Time conversion', () => {
 	it('Converts frame 1 at 25p', () => {
@@ -19,5 +19,10 @@ describe('Time conversion', () => {
 	it('Converts frame 10000 at 25p', () => {
 		const result = FramesToTimestamp(10000, '1/25')
 		expect(result).toBe('00:06:39.960')
+	})
+
+	it('Converts 25 frames to 1000ms', () => {
+		const result = FramesToMs(25, '1/25')
+		expect(result).toBe(1000)
 	})
 })
