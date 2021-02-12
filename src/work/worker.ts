@@ -342,7 +342,8 @@ export class Worker {
 			previewFrame = 0
 		}
 
-		const targetTime = previewFrame && videoTimeBase ? FramesToTimestamp(previewFrame, videoTimeBase) : undefined
+		const targetTime =
+			previewFrame !== undefined && videoTimeBase ? FramesToTimestamp(previewFrame, videoTimeBase) : undefined
 
 		const destPath = path.join(
 			(this.config.paths && this.config.paths.resources) || '',
@@ -392,7 +393,7 @@ export class Worker {
 					? 'ffmpeg.exe'
 					: 'ffmpeg',
 				'-hide_banner',
-				targetTime ? `-ss ${targetTime}` : undefined,
+				targetTime !== undefined ? `-ss ${targetTime}` : undefined,
 				`-i "${doc.mediaPath}"`,
 				'-frames:v 1',
 				`-vf ${!targetTime ? 'thumbnail,' : ''}scale=${(this.config.thumbnails &&
