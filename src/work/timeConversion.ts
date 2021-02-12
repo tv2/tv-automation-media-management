@@ -6,11 +6,9 @@ function padTime(time: number, pad: number): string {
 	return time.toString().padStart(pad, '0')
 }
 
-export function FramesToTimestamp(frames: number, _timeBaseStr: string) {
+export function FramesToTimestamp(frames: number, timeBaseStr: string) {
 	// const timeBase = timeBaseStr && timeBaseStr.match(/1\/\d+/) ? 1 / Number(timeBaseStr.split('/')[1]) : 0
-	const timeBase = 1 / 25 // For now
-
-	let targetTime = frames * timeBase * 1000 - timeBase * 1000
+	let targetTime = FramesToMs(frames, timeBaseStr)
 
 	const hours = Math.floor(targetTime / HOUR)
 	targetTime -= hours * HOUR
@@ -22,4 +20,11 @@ export function FramesToTimestamp(frames: number, _timeBaseStr: string) {
 	targetTime -= seconds * SECOND
 
 	return `${padTime(hours, 2)}:${padTime(minutes, 2)}:${padTime(seconds, 2)}.${padTime(targetTime, 3)}`
+}
+
+export function FramesToMs(frames: number, _timeBaseStr: string) {
+	const timeBase = 1 / 25 // For now
+	let targetTime = frames * timeBase * 1000 - timeBase * 1000
+
+	return targetTime
 }
