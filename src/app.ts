@@ -37,7 +37,7 @@ export class MediaManagerApp {
 			await next()
 		})
 
-		this.router.get('/media/thumbnail/:id', async (ctx, next) => {
+		this.router.get('/media/thumbnail/:id+', async (ctx, next) => {
 			this.logger.debug(`HTTP/S server: received thumbnail request ${ctx.params.id}`)
 			let id = /* ctx.params.id.startsWith('QUANTEL:') ? ctx.params.id.slice(8) : */ ctx.params.id
 			let thumbPath = path.join(

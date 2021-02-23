@@ -19,6 +19,7 @@ export interface TrackedMediaItem extends PouchDB.Core.IdMeta {
 	comment?: string
 	lastSeen: Time
 	lingerTime: Duration
+	previewFrame?: number
 }
 
 export interface TrackedMediaItemDB extends TrackedMediaItem, PouchDB.Core.GetMeta {

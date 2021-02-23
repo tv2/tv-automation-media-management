@@ -61,6 +61,7 @@ export class QuantelHTTPFile implements File {
 	private _name: string
 	private _url: string
 	private _read: boolean
+	private _previewFrame?: number
 
 	@Transform(
 		(value: QuantelGateway): QuantelGatewayTombstone => {
@@ -81,8 +82,22 @@ export class QuantelHTTPFile implements File {
 	private transformerUrl: string
 	private query: QuantelHTTPQuery
 
-	constructor(gateway: QuantelGateway, transformerUrl: string, url: string, read: boolean, _name?: string)
-	constructor(gateway: QuantelGateway, transformerUrl: string, url?: string, read?: boolean, _name?: string) {
+	constructor(
+		gateway: QuantelGateway,
+		transformerUrl: string,
+		url: string,
+		read: boolean,
+		previewFrame?: number,
+		_name?: string
+	)
+	constructor(
+		gateway: QuantelGateway,
+		transformerUrl: string,
+		url?: string,
+		read?: boolean,
+		previewFrame?: number,
+		_name?: string
+	) {
 		this.gateway = gateway
 		this.transformerUrl = transformerUrl
 		if (url) {
@@ -90,6 +105,7 @@ export class QuantelHTTPFile implements File {
 			this.query = parseQuantelUrl(this._url)
 			this._name = url
 			this._read = !!read
+			this._previewFrame = previewFrame
 		}
 	}
 
@@ -99,6 +115,10 @@ export class QuantelHTTPFile implements File {
 
 	get url(): string {
 		return this._url
+	}
+
+	get previewFrame(): number | undefined {
+		return this._previewFrame
 	}
 
 	async getWritableStream(): Promise<stream.Writable> {
@@ -210,10 +230,12 @@ export class QuantelHTTPHandler extends EventEmitter implements StorageHandler {
 	removeMonitoredFile(url: string): void {
 		delete this._monitoredUrls[url]
 	}
-	getFile(name: string): Promise<File> {
+	getFile(name: string, previewFrame?: number): Promise<File> {
 		if (!this._initialized) throw Error('Not initialized yet!')
 		if (!this._readable) throw Error('This storage is not readable.')
-		return Promise.resolve(new QuantelHTTPFile(this.gateway, this.transformerUrl, name, this._readable))
+		return Promise.resolve(
+			new QuantelHTTPFile(this.gateway, this.transformerUrl, name, this._readable, previewFrame)
+		)
 	}
 	putFile(_file: File, _progressCallback?: ((progress: number) => void) | undefined): CancelablePromise<File> {
 		throw Error('This storage is not writable.')

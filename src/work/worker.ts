@@ -22,6 +22,7 @@ import * as fs from 'fs-extra'
 import * as http from 'http'
 import { MonitorQuantel } from '../monitors/quantel'
 import quantelMetadataTransform from './quantelFormats'
+import { FramesToMs, FramesToTimestamp } from './timeConversion'
 
 export interface WorkResult {
 	status: WorkStepStatus
@@ -320,6 +321,30 @@ export class Worker {
 			return this.failStep(`failed to retrieve media object with ID "${fileId}"`, step.action, getError)
 		}
 
+		// Assume first video stream is the one we want
+		let videoTimeBase = doc.mediainfo?.streams?.find(s => s.codec.type === 'video')?.time_base
+		const mediaLength = doc.mediainfo?.streams?.find(s => s.codec.type === 'video')?.duration
+
+		let previewFrame = step.file.previewFrame ?? 0
+
+		if (!mediaLength) {
+			// Don't know the media length, so don't seek for safety
+			previewFrame = 0
+		}
+
+		if (!videoTimeBase || videoTimeBase !== '1/25') {
+			// Cannot safely calculate time
+			previewFrame = 0
+		}
+
+		if (videoTimeBase && Number(mediaLength) < FramesToMs(previewFrame, videoTimeBase) / 1000) {
+			// try to seek past end of clip, fall back to first frame
+			previewFrame = 0
+		}
+
+		const targetTime =
+			previewFrame !== undefined && videoTimeBase ? FramesToTimestamp(previewFrame, videoTimeBase) : undefined
+
 		const destPath = path.join(
 			(this.config.paths && this.config.paths.resources) || '',
 			(this.config.thumbnails && this.config.thumbnails.folder) || 'thumbs',
@@ -368,13 +393,15 @@ export class Worker {
 					? 'ffmpeg.exe'
 					: 'ffmpeg',
 				'-hide_banner',
+				targetTime !== undefined ? `-ss ${targetTime}` : undefined,
 				`-i "${doc.mediaPath}"`,
 				'-frames:v 1',
-				`-vf thumbnail,scale=${(this.config.thumbnails && this.config.thumbnails.width) || 256}:` +
-					`${(this.config.thumbnails && this.config.thumbnails.height) || -1}`,
+				`-vf ${!targetTime ? 'thumbnail,' : ''}scale=${(this.config.thumbnails &&
+					this.config.thumbnails.width) ||
+					256}:` + `${(this.config.thumbnails && this.config.thumbnails.height) || -1}`,
 				'-threads 1',
 				`"${tmpPath}"`
-			]
+			].filter(a => !!a)
 
 			const { error: execError } = await noTryAsync(
 				() =>
@@ -664,7 +691,9 @@ export class Worker {
 			throw new Error('Worker: get metadata: running getMetadata requires the presence of basic file data first.')
 		}
 		if (!doc.mediainfo.format.duration) {
-			this.logger.info(`Worker: get metadata: not generating stream metadata: duration missing on "${doc.mediaId}"`)
+			this.logger.info(
+				`Worker: get metadata: not generating stream metadata: duration missing on "${doc.mediaId}"`
+			)
 			return {}
 		}
 

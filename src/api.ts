@@ -140,6 +140,9 @@ export interface ExpectedMediaItem {
 
 	/** Time to wait before removing file */
 	lingerTime?: Duration
+
+	/** Frame that media manager should grab for thumbnail preview */
+	previewFrame?: number
 }
 
 export enum MediaFlowType {
