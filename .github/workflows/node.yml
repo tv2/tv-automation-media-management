@@ -43,8 +43,8 @@ jobs:
       - name: yarn changelog
         run: yarn changelog
 
-      - name: git push --follow-tags origin HEAD
-        run:  git push --follow-tags origin HEAD
+      - name: git push --follow-tags ${{ github.ref }} HEAD
+        run:  git push --follow-tags ${{ github.ref }} HEAD
       # - name: release
       #   uses: actions/create-release@v1
       #   id: create_release
