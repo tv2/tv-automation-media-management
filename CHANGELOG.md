@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/nrkno/tv-automation-media-management/compare/v1.1.0...v1.5.0) (2021-08-11)
+
+
+### Features
+
+* Add crosscompile build script ([510dd31](https://github.com/nrkno/tv-automation-media-management/commit/510dd31a38096953b27beed20afc342f1623ccf9))
+* Generate thumbnail preview from a specified frame ([d64ae01](https://github.com/nrkno/tv-automation-media-management/commit/d64ae01f429588c46ce7fc6b4eeaa77883fee0b7))
+* testing ([0d7b5b8](https://github.com/nrkno/tv-automation-media-management/commit/0d7b5b8da45d980e3ad0d07facfab65b096dca13))
+* testing ([ffe1428](https://github.com/nrkno/tv-automation-media-management/commit/ffe142872da7e4283e75e898089796f3f896c498))
+
+
+### Bug Fixes
+
+* 0-index previewFrame ([6a39612](https://github.com/nrkno/tv-automation-media-management/commit/6a39612d14fa70e411474f7a1b0d2c5dfa7c283f))
+* Allow subfolders for thumbnails ([c1a9fe3](https://github.com/nrkno/tv-automation-media-management/commit/c1a9fe3b6b5cc0d70e9871005196b665d974ebfb))
+* automated tests should now work, enabling CI builds ([c696fd9](https://github.com/nrkno/tv-automation-media-management/commit/c696fd9a7cebac3073e25347f223a31c172a240e))
+* build exe with nexe as leveldown works better with that ([8bb37bd](https://github.com/nrkno/tv-automation-media-management/commit/8bb37bd92ec12bae6edc5a27bf70e1e8edef7853))
+* closure issue and typings ([49a5903](https://github.com/nrkno/tv-automation-media-management/commit/49a5903fb8d253a624c590bea83563d883ad2158))
+* config manifest has serverId as a string when number is expected ([6596dce](https://github.com/nrkno/tv-automation-media-management/commit/6596dce9ce8b89090b5d66c38f523d7dd3631100))
+* config manifest has serverId as a string when number is expected ([1d7de78](https://github.com/nrkno/tv-automation-media-management/commit/1d7de78aa09b880f49a3516d450021c828d41f53))
+* copy a file when added on a non-quantel storage ([3925c0d](https://github.com/nrkno/tv-automation-media-management/commit/3925c0da458c23d22f64fb9394ec0d6115235a98))
+* create objects in quantel monitor if missing and destination ID in config manifest ([95e243d](https://github.com/nrkno/tv-automation-media-management/commit/95e243dd8c4e88507fcbce7aa99973cac1854959))
+* deal with a quantel monitor set before work has started ([1e41e7c](https://github.com/nrkno/tv-automation-media-management/commit/1e41e7cc075885d32e04e277d32b31464eb2a091))
+* disable linux builds and reenable running tests ([f18330c](https://github.com/nrkno/tv-automation-media-management/commit/f18330cbe2011ebe0512f1dc367d52fe20b4a626))
+* don't add a job as outstanding work when other jobs in the same workflow are running ([718c24a](https://github.com/nrkno/tv-automation-media-management/commit/718c24acac3a89893bdd312d6823837e140fdfc8))
+* don't repeat successful Quantel work on restart ([23a3b90](https://github.com/nrkno/tv-automation-media-management/commit/23a3b9055d359b86070add6ac2f83e69e14d94d1))
+* emit copy workflow only only when file isn't growing ([7f239de](https://github.com/nrkno/tv-automation-media-management/commit/7f239de87cf7e0b3d5023e0a363a7ed04c24ca9b))
+* failing workstep because of race with watcher ([a62a4fd](https://github.com/nrkno/tv-automation-media-management/commit/a62a4fd09c24507e89d284841b377d8e4503be01))
+* handle black frame detect durations with an 's' unit specifier ([4e9009a](https://github.com/nrkno/tv-automation-media-management/commit/4e9009ad20673dbab0d202534174dafd1f16199d))
+* handle black frame detect durations with an 's' unit specifier ([8ef39e4](https://github.com/nrkno/tv-automation-media-management/commit/8ef39e4941cadc8fa94e995bf48da99d514da12c))
+* limit disk usage warnings on Windows to local disks only ([0c0d407](https://github.com/nrkno/tv-automation-media-management/commit/0c0d4075574cf2326a64f10d29479d4561857685))
+* make playout gateway HTTP watcher a happy bunny again ([080dd07](https://github.com/nrkno/tv-automation-media-management/commit/080dd07016e71fa172863738ab93d9290b9e1c06))
+* manager not initializing properly when no ready event from chokidar ([a8d45e1](https://github.com/nrkno/tv-automation-media-management/commit/a8d45e133a1e1ab1d3c747ff9f64ccdb490f7858))
+* metadata generation for quantel simulated rather than via ffprobe ([1752ee7](https://github.com/nrkno/tv-automation-media-management/commit/1752ee71c5b41b3d935a014b2703b10b153e513f))
+* missed merge conflict ([2258c1b](https://github.com/nrkno/tv-automation-media-management/commit/2258c1bc9a5b7e4691ffa9a244cae7256ca5a75c))
+* missing comma ([a9b6c71](https://github.com/nrkno/tv-automation-media-management/commit/a9b6c71c3523140dd3c9581e530a15b88e3651c4))
+* more typings issues ([8f73bfe](https://github.com/nrkno/tv-automation-media-management/commit/8f73bfeb0de2b6908642427b6713a06d5772b0a4))
+* nexe build not working on node >12.16.0 ([c059612](https://github.com/nrkno/tv-automation-media-management/commit/c05961235446de4bdac9f6bf73c9b14264ebf3c9))
+* prevent MPEG-DASH hangs by reading everything into RAM rather than streaming ([e366b15](https://github.com/nrkno/tv-automation-media-management/commit/e366b15a5cb6524f16334219d25fc233e0800f2a))
+* previews folder default should be set in app ([509288b](https://github.com/nrkno/tv-automation-media-management/commit/509288bb0725ebf74ed9efdd4c2523ec858780bc))
+* process reference and metadata analysis ([a1cd33a](https://github.com/nrkno/tv-automation-media-management/commit/a1cd33aa0e648b48ca814da1bcfb6ead3f5e0bac))
+* protect against invalid / unsafe seeks ([b80dbe1](https://github.com/nrkno/tv-automation-media-management/commit/b80dbe1cc655287868c047d9e9a19d3a670a8807))
+* reference correct _id property when making file names ([db1db5e](https://github.com/nrkno/tv-automation-media-management/commit/db1db5e7a981c72c4a6af7f5d1ec48d82dac6998))
+* release21 of core did not happen, so all changes now part of release 22.1 ([db8eb2f](https://github.com/nrkno/tv-automation-media-management/commit/db8eb2fdbba9b54ec37389ab399ce4f433d2e8e7))
+* replace rather than duplicate failed work on restart ([9b482dc](https://github.com/nrkno/tv-automation-media-management/commit/9b482dcfc3532b54d22ee807157208ee06f9f23e))
+* reporting of sub-device status for Quantel devices ([1a7ae87](https://github.com/nrkno/tv-automation-media-management/commit/1a7ae87d1ddf8c8f05fa438b39b39b01acdc96b5))
+* resend sub-device status after core reconnect ([384b37e](https://github.com/nrkno/tv-automation-media-management/commit/384b37e8de97adcd8f35313eddc8440d74600581))
+* resilient to quantel check being called with undefined - possible bad data on initialization ([2aa4427](https://github.com/nrkno/tv-automation-media-management/commit/2aa4427993e51b84cc3fb5a96c8c53cb228bf3a8))
+* revert Quantel Gateway client typescript version to 3.8 ([c6eb749](https://github.com/nrkno/tv-automation-media-management/commit/c6eb7490bafd7be6677191abd827c40f78bf7a81))
+* skip getMetadata when duration is missing ([9085187](https://github.com/nrkno/tv-automation-media-management/commit/908518747e53fefa86a4928be161c1d97156dde0))
+* sort ClipGUIDs duplicated on a pool to select the latest one ([57f13a9](https://github.com/nrkno/tv-automation-media-management/commit/57f13a93536c4329886fdf8c0b3cef6fa8c37c1d))
+* square thumbnails when dimensions provided ([d8668ee](https://github.com/nrkno/tv-automation-media-management/commit/d8668ee36217e449d7f79a66108bbd39a03adcca))
+* stop circular depedency in logging from causing jobs to NaN% ([e9bb402](https://github.com/nrkno/tv-automation-media-management/commit/e9bb402b4af451cd42b30f889e1dbe662e3520d0))
+* stop wiping workflow steps before persisting them ([134cdd1](https://github.com/nrkno/tv-automation-media-management/commit/134cdd190f8955d6a9a26514b58efd05c5ff57ae))
+* thumbnail serving ([940819a](https://github.com/nrkno/tv-automation-media-management/commit/940819ad794337619aef7cabf012e2548b774d75))
+* Time conversion ([3254090](https://github.com/nrkno/tv-automation-media-management/commit/32540903bd43b6717a82adfac41f86a8191d223e))
+* tolerate clips with no audio / audio format is empty string ([458ad38](https://github.com/nrkno/tv-automation-media-management/commit/458ad38bcef4b95dd7d0671a45e9375b95724743))
+* typings issues ([69dc5ba](https://github.com/nrkno/tv-automation-media-management/commit/69dc5ba37ad10d617cf5a458d06ff8e45aa8819b))
+* typings issues ([10ec0d2](https://github.com/nrkno/tv-automation-media-management/commit/10ec0d2fd527d536683e02a0f4ac2df26a735e1b))
+* update generate-deps-metadata script ([593503f](https://github.com/nrkno/tv-automation-media-management/commit/593503fcad66e4c0cf2c7bf2b7e399f797c2c8e1))
+* **config manifest:** fix labels in manifest ([23fa7d9](https://github.com/nrkno/tv-automation-media-management/commit/23fa7d92a00d49da1c9fbff213b4ce3169925add))
+* **config manifest:** fix manifest to work correctly ([a8927b1](https://github.com/nrkno/tv-automation-media-management/commit/a8927b1490514b98c39609aee7f2b01d109694a1))
+
 ## [1.4.0](https://github.com/nrkno/tv-automation-media-management/compare/v1.4.0-release28.2...v1.4.0) (2021-01-19)
 
 ## [1.4.0-release28.2](https://github.com/nrkno/tv-automation-media-management/compare/v1.4.0-release28.1...v1.4.0-release28.2) (2020-12-14)
