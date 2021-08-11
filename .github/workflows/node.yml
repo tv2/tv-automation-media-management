@@ -43,17 +43,19 @@ jobs:
       - name: yarn changelog
         run: yarn changelog
 
-      - name: release
-        uses: actions/create-release@v1
-        id: create_release
-        with:
-          draft: false
-          prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ github.token}}
+      - name: git push --follow-tags origin HEAD
+        run:  git push --follow-tags origin HEAD
+      # - name: release
+      #   uses: actions/create-release@v1
+      #   id: create_release
+      #   with:
+      #     draft: false
+      #     prerelease: false
+      #     release_name: ${{ steps.version.outputs.version }}
+      #     tag_name: ${{ github.ref }}
+      #     body_path: CHANGELOG.md
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token}}
       
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
@@ -62,7 +64,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./media-manager.zip
-          asset_name: media-manager.zip
+          asset_name: media-manager-${{ github.ref }}.zip
           asset_content_type: application/zip
 
   # validate-dependencies:
