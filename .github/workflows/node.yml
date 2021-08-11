@@ -1,8 +1,6 @@
 name: Deploy zip release
 on:
   push:
-    tags:
-      - '*'
 jobs:
   install-build-windows:
     runs-on: ubuntu-latest
