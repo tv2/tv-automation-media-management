@@ -34,6 +34,11 @@ jobs:
         with:
           name: media-manager
           path: ./media-manager.zip
+
+      - name: Configure committer
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
         
       - name: yarn changelog
         run: yarn changelog
