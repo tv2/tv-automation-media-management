@@ -1,5 +1,8 @@
 name: Deploy zip release
-on: push
+on:
+  push:
+    tags:
+      - '*'
 jobs:
   install-build-windows:
     runs-on: ubuntu-latest
@@ -33,6 +36,9 @@ jobs:
         with:
           name: media-manager
           path: ./media-manager.zip
+        
+      - name: yarn changelog
+        run: yarn changelog
 
       - name: release
         uses: actions/create-release@v1
@@ -45,6 +51,16 @@ jobs:
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token}}
+      
+      - name: upload windows artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./media-manager.zip
+          asset_name: media-manager.zip
+          asset_content_type: application/zip
 
   # validate-dependencies:
   #   runs-on: ubuntu-latest
