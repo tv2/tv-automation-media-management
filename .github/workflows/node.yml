@@ -1,0 +1,52 @@
+name: Deploy zip release
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: yarn install
+        run: yarn install
+
+      - name: yarn test
+        run: yarn test
+    
+  # validate-dependencies:
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/master' || 'refs/heads/develop'
+  #   steps:
+  #     - name: yarn test
+  #       run: yarn test
+
+  #     - name: yarn validate:dependencies
+  #       run: yarn validate:dependencies
+
+  build-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: yarn install
+        run: yarn install
+
+      - name: yarn build-win32
+        run: yarn build-win32
+      
+      - name: Zip the dist folder
+        run: mv deploy media-manager && zip -r media-manager.zip media-manager
+      
+      - name: Upload media-manager
+        uses: actions/upload-artifact@v2
+        with:
+          name: media-manager
+          path: ./media-manager.zip
+    
