@@ -138,11 +138,15 @@ export class MonitorQuantel extends Monitor {
 			if (!this.settings.ISAUrl) throw new Error(`${this.ident} init: parameter not set: ISAUrl`)
 			if (!this.settings.serverId) throw new Error(`${this.ident} init: parameter not set: serverId`)
 
+			const isaURLs = [this.settings.ISAUrl]
+			if (this.settings.ISABackupUrl) {
+				isaURLs.push(this.settings.ISABackupUrl)
+			}
+
 			// Setup quantel connection:
 			this.waitingForInit = this.quantel.init(
 				this.settings.gatewayUrl,
-				this.settings.ISAUrl,
-				this.settings.ISABackupUrl,
+				isaURLs,
 				this.settings.zoneId,
 				this.settings.serverId
 			)
@@ -285,7 +289,11 @@ export class MonitorQuantel extends Monitor {
 		setTimeout(() => {
 			if (!this.isDestroyed) {
 				this.doWatch().catch(e => {
-					this.logger.error(`${this.ident} triggerWatch: Error in Quantel doWatch`, e)
+					this.logger.error(
+						`${this.ident} triggerWatch: Error in Quantel doWatch - retarting watcher in 10s`,
+						e
+					)
+					setTimeout(this.triggerWatch.bind(this), 10000)
 				})
 			}
 		}, BREATHING_ROOM)
@@ -318,7 +326,7 @@ export class MonitorQuantel extends Monitor {
 
 				if (url) {
 					const { result: clipSummaries, error: searchError } = await noTryAsync(() =>
-						this.quantel.searchClip(this.parseUrlToQuery(url))
+						this.quantel.searchClip(this.parseUrlToQuery(monitoredFile.url)) // Re-resolve URL as clone-by-title may update this
 					)
 					if (searchError) {
 						this.logger.error(
@@ -332,9 +340,9 @@ export class MonitorQuantel extends Monitor {
 							return (
 								typeof clipData.PoolID === 'number' &&
 								(server.pools || []).indexOf(clipData.PoolID) !== -1 && // If present in any of the pools of the server
-								parseInt(clipData.Frames, 10) > 0 &&
-								clipData.Completed !== null &&
-								clipData.Completed.length > 0 // Note from Richard: Completed might not necessarily mean that it's completed on the right server
+								parseInt(clipData.Frames, 10) > 0 // && 5/5/21: Removed check for completed - OA tests shoes it does nothing for placeholders
+								// clipData.Completed !== null &&
+								// clipData.Completed.length > 0 // Note from Richard: Completed might not necessarily mean that it's completed on the right server
 							)
 						}).sort(
 							(
@@ -342,7 +350,7 @@ export class MonitorQuantel extends Monitor {
 								b // Sort Created dates into reverse order
 							) => new Date(b.Created).getTime() - new Date(a.Created).getTime()
 						)
-						if (clipSummaryOnPool) {
+						if (clipSummaryOnPool && clipSummaryOnPool.length > 0) {
 							// The clip is present, and on the right server
 							this.logger.debug(
 								`${this.ident} doWatch: Clip "${url}" found with ${clipSummaryOnPool.length} mathcing clips`
@@ -436,6 +444,11 @@ export class MonitorQuantel extends Monitor {
 										result
 									)
 									copyCreated = true
+									// Edge case where a cloned clip searched for by Title has a different title as a clone, although the same ClipGUID
+									if (this.parseUrlToQuery(url).Title) {
+										const updatedURL = `quantel:${clipSummaries[0].ClipGUID.toUpperCase()}`
+										this.monitoredFiles[url] = { ...this.monitoredFiles[url], url: updatedURL }
+									}
 									break
 								}
 								if (!copyCreated) {

@@ -348,7 +348,7 @@ export class Worker {
 		const destPath = path.join(
 			(this.config.paths && this.config.paths.resources) || '',
 			(this.config.thumbnails && this.config.thumbnails.folder) || 'thumbs',
-			`${doc._id.replace(/:/gi, '_')}.jpg`
+			`${doc._id.replace(/[:\?]/gi, '_')}.jpg`
 		)
 		const tmpPath = destPath.slice(0, -4) + '.new.jpg'
 		await fs.mkdirp(path.dirname(tmpPath))
@@ -475,7 +475,7 @@ export class Worker {
 		const destPath = path.join(
 			(this.config.paths && this.config.paths.resources) || '',
 			(this.config.previews && this.config.previews.folder) || 'previews',
-			`${doc._id.replace(/:/gi, '_')}.webm`
+			`${doc._id.replace(/[:\?]/gi, '_')}.webm`
 		)
 		const tmpPath = destPath + '.new'
 
@@ -670,13 +670,14 @@ export class Worker {
 		return fieldOrder
 	}
 
-	private static readonly sceneRegex = /Parsed_showinfo_(.*)pts_time:([\d.]+)\s+/g
-	private static readonly blackDetectRegex = /(black_start:)(\d+(.\d+)?)( black_end:)(\d+(.\d+)?)( black_duration:)(\d+(.\d+))?/g
-	private static readonly freezeDetectStart = /(lavfi\.freezedetect\.freeze_start: )(\d+(.\d+)?)/g
-	private static readonly freezeDetectDuration = /(lavfi\.freezedetect\.freeze_duration: )(\d+(.\d+)?)/g
-	private static readonly freezeDetectEnd = /(lavfi\.freezedetect\.freeze_end: )(\d+(.\d+)?)/g
-
 	private async getMetadata(doc: MediaObject): Promise<Metadata> {
+		// No longer static because /g flag has states between each run
+		const sceneRegex = /Parsed_showinfo_(.*)pts_time:([\d.]+)\s+/g
+		const blackDetectRegex = /(black_start:)(\d+(.\d+)?)( black_end:)(\d+(.\d+)?)( black_duration:)(\d+(.\d+))?/g
+		const freezeDetectStart = /(lavfi\.freezedetect\.freeze_start: )(\d+(.\d+)?)/g
+		const freezeDetectDuration = /(lavfi\.freezedetect\.freeze_duration: )(\d+(.\d+)?)/g
+		const freezeDetectEnd = /(lavfi\.freezedetect\.freeze_end: )(\d+(.\d+)?)/g
+
 		const metaconf = this.config.metadata
 		if (!metaconf || (!metaconf.scenes && !metaconf.freezeDetection && !metaconf.blackDetection)) {
 			this.logger.debug(
@@ -764,11 +765,11 @@ export class Worker {
 			}
 
 			let res: RegExpExecArray | null
-			while ((res = Worker.sceneRegex.exec(stringData)) !== null) {
+			while ((res = sceneRegex.exec(stringData)) !== null) {
 				scenes.push(parseFloat(res[2]))
 			}
 
-			while ((res = Worker.blackDetectRegex.exec(stringData)) !== null) {
+			while ((res = blackDetectRegex.exec(stringData)) !== null) {
 				blacks.push(
 					literal<Anomaly>({
 						start: parseFloat(res[2]),
@@ -778,7 +779,7 @@ export class Worker {
 				)
 			}
 
-			while ((res = Worker.freezeDetectStart.exec(stringData)) !== null) {
+			while ((res = freezeDetectStart.exec(stringData)) !== null) {
 				freezes.push(
 					literal<Anomaly>({
 						start: parseFloat(res[2]),
@@ -789,13 +790,17 @@ export class Worker {
 			}
 
 			let i = 0
-			while ((res = Worker.freezeDetectDuration.exec(stringData)) !== null) {
-				freezes[i++].duration = parseFloat(res[2])
+			while ((res = freezeDetectDuration.exec(stringData)) !== null) {
+				if (freezes[i]) {
+					freezes[i++].duration = parseFloat(res[2])
+				}
 			}
 
 			i = 0
-			while ((res = Worker.freezeDetectEnd.exec(stringData)) !== null) {
-				freezes[i++].end = parseFloat(res[2])
+			while ((res = freezeDetectEnd.exec(stringData)) !== null) {
+				if (freezes[i]) {
+					freezes[i++].end = parseFloat(res[2])
+				}
 			}
 		})
 
