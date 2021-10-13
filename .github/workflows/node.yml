@@ -29,7 +29,7 @@ jobs:
         run: yarn build-win32
       
       - name: Zip the dist folder
-        run: zip -r media-manager.zip deploy
+        run: cd deploy && zip -r media-manager.zip deploy && cd ..
       
       - name: Upload media-manager
         uses: actions/upload-artifact@v2
