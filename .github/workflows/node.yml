@@ -2,7 +2,7 @@ name: Deploy zip release
 on:
   push:
     tags:
-      - '^v\d+.\d+.\d+(-.+)?$'
+      - '*'
 jobs:
   install-build-windows:
     runs-on: ubuntu-latest
