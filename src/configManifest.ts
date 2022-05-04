@@ -75,6 +75,11 @@ MEDIA_MANAGER_STORAGE_CONFIG[StorageType.FILE_SHARE] = [
 		id: 'options.onlySelectedFiles',
 		name: "Don't Scan Entire Storage",
 		type: ConfigManifestEntryType.BOOLEAN
+	},
+	{
+		id: 'options.hack_disableWatcher',
+		name: 'Disable watcher',
+		type: ConfigManifestEntryType.BOOLEAN
 	}
 ]
 MEDIA_MANAGER_STORAGE_CONFIG[StorageType.LOCAL_FOLDER] = [

@@ -222,6 +222,7 @@ export interface LocalFolderStorage extends StorageSettings {
 		mediaPath?: string
 		usePolling?: boolean
 		onlySelectedFiles?: boolean
+		hack_disableWatcher?: boolean
 	}
 }
 export interface FileShareStorage extends StorageSettings {
@@ -236,6 +237,7 @@ export interface FileShareStorage extends StorageSettings {
 		username?: string // wip?
 		password?: string // wip?
 		onlySelectedFiles?: boolean
+		hack_disableWatcher?: boolean
 	}
 }
 

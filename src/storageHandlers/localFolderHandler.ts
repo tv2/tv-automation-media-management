@@ -81,7 +81,7 @@ type NestedFiles = Array<File | NestedFiles | null>
 
 export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 	private _basePath: string
-	private _watcher: chokidar.FSWatcher
+	private _watcher: chokidar.FSWatcher | undefined = undefined
 	private _initialized: boolean = false
 	private _writable: boolean = false
 	private _readable: boolean = false
@@ -89,6 +89,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 	private _usePolling: boolean = false
 
 	private _selectiveListen: boolean = false
+	private _hack_disableWatcher: boolean = false
 
 	/**
 	 * Creates an instance of LocalFolderHandler.
@@ -107,9 +108,14 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 		this._basePath = settings.options.basePath
 		this._usePolling = settings.options.usePolling || false
 		this._selectiveListen = settings.options.onlySelectedFiles || false
+		this._hack_disableWatcher = settings.options.hack_disableWatcher || false
 	}
 
 	async init(): Promise<void> {
+		if (this._hack_disableWatcher) {
+			this._initialized = true
+			return Promise.resolve()
+		}
 		this._watcher = chokidar
 			.watch(this._selectiveListen ? [] : '.', {
 				cwd: this._basePath,
@@ -139,7 +145,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 				this._initialized = true
 				setImmediate(resolve)
 			} else {
-				this._watcher.on('ready', () => {
+				this._watcher!.on('ready', () => {
 					this._initialized = true
 					resolve()
 				})
@@ -151,7 +157,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 		return new Promise<void>((resolve, reject) => {
 			setTimeout(() => {
 				if (this._initialized) {
-					this._watcher.close().catch(reject)
+					this._watcher?.close().catch(reject)
 					resolve()
 					return
 				}
@@ -166,13 +172,13 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 
 	addMonitoredFile = (name: string) => {
 		if (this._selectiveListen) {
-			this._watcher.add(name)
+			this._watcher?.add(name)
 		}
 	}
 
 	removeMonitoredFile = (name: string) => {
 		if (this._selectiveListen) {
-			this._watcher.unwatch(name)
+			this._watcher?.unwatch(name)
 		}
 	}
 
