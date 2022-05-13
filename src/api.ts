@@ -1,5 +1,6 @@
 export * from './api/mediaObject'
 import { WatchOptions } from 'chokidar'
+import { FileShareWatcherType } from './configManifest'
 
 /** The settings in Core (that's gonna be in the UI) */
 export interface DeviceSettings {
@@ -222,7 +223,7 @@ export interface LocalFolderStorage extends StorageSettings {
 		mediaPath?: string
 		usePolling?: boolean
 		onlySelectedFiles?: boolean
-		hack_disableWatcher?: boolean
+		watcher?: FileShareWatcherType
 	}
 }
 export interface FileShareStorage extends StorageSettings {
@@ -237,7 +238,7 @@ export interface FileShareStorage extends StorageSettings {
 		username?: string // wip?
 		password?: string // wip?
 		onlySelectedFiles?: boolean
-		hack_disableWatcher?: boolean
+		watcher?: FileShareWatcherType
 	}
 }
 

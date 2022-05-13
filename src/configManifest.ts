@@ -44,6 +44,11 @@ const MEDIA_MANAGER_STORAGE_COMMON: SubDeviceConfigManifestEntry[] = [
 ]
 const MEDIA_MANAGER_STORAGE_CONFIG: SubDeviceConfigManifest['config'] = {}
 MEDIA_MANAGER_STORAGE_CONFIG[StorageType.UNKNOWN] = [...MEDIA_MANAGER_STORAGE_COMMON]
+export enum FileShareWatcherType {
+	DISABLED = 'disabled',
+	CHOKIDAR = 'chokidar',
+	NODE_WATCH = 'node-watch'
+}
 MEDIA_MANAGER_STORAGE_CONFIG[StorageType.FILE_SHARE] = [
 	...MEDIA_MANAGER_STORAGE_COMMON,
 	{
@@ -77,9 +82,10 @@ MEDIA_MANAGER_STORAGE_CONFIG[StorageType.FILE_SHARE] = [
 		type: ConfigManifestEntryType.BOOLEAN
 	},
 	{
-		id: 'options.hack_disableWatcher',
-		name: 'Disable watcher',
-		type: ConfigManifestEntryType.BOOLEAN
+		id: 'options.watcher',
+		name: 'Watcher',
+		type: ConfigManifestEntryType.ENUM,
+		values: FileShareWatcherType
 	}
 ]
 MEDIA_MANAGER_STORAGE_CONFIG[StorageType.LOCAL_FOLDER] = [

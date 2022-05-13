@@ -25,7 +25,7 @@ find.file(/\.node$/, path.join(__dirname, 'node_modules'), (files) => {
             const file = fullPath.substr(__dirname.length + 1)
             if (isFileForPlatform(file)) {
                 console.log('copy prebuild binary:', file)
-                fs.copySync(file, path.join('deploy', file))
+                fs.copySync(file, path.join('deploy', file.substr(file.indexOf('prebuilds'))))
             }
         }
     });
