@@ -30,6 +30,7 @@ export class FileShareHandler extends LocalFolderHandler {
 			support: fsSettings.support,
 			type: StorageType.LOCAL_FOLDER,
 			options: {
+				watcher: fsSettings.options.watcher,
 				basePath: targetBasePath,
 				usePolling: true,
 				// Needs to be false for standalone tests ... otherwise true

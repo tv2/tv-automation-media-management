@@ -9,6 +9,8 @@ import * as chokidar from 'chokidar'
 import { robocopy } from '../lib/robocopy'
 import { CancelablePromise } from '../lib/cancelablePromise'
 import { LoggerInstance } from 'winston'
+import { FileShareWatcherType } from '../configManifest'
+import { FastSelectFileWatcher } from './fastSelectFileWatcher'
 
 /**
  * A shared method to get the file properties from the underlying file system.
@@ -81,7 +83,7 @@ type NestedFiles = Array<File | NestedFiles | null>
 
 export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 	private _basePath: string
-	private _watcher: chokidar.FSWatcher
+	private _watcher: chokidar.FSWatcher | FastSelectFileWatcher | undefined = undefined
 	private _initialized: boolean = false
 	private _writable: boolean = false
 	private _readable: boolean = false
@@ -89,6 +91,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 	private _usePolling: boolean = false
 
 	private _selectiveListen: boolean = false
+	private _watcherType: FileShareWatcherType = FileShareWatcherType.CHOKIDAR
 
 	/**
 	 * Creates an instance of LocalFolderHandler.
@@ -106,32 +109,50 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 
 		this._basePath = settings.options.basePath
 		this._usePolling = settings.options.usePolling || false
-		this._selectiveListen = settings.options.onlySelectedFiles || false
+		this._selectiveListen =
+			settings.options.onlySelectedFiles || settings.options.watcher === FileShareWatcherType.NODE_WATCH
+		this._watcherType = settings.options.watcher || FileShareWatcherType.CHOKIDAR
 	}
 
 	async init(): Promise<void> {
-		this._watcher = chokidar
-			.watch(this._selectiveListen ? [] : '.', {
-				cwd: this._basePath,
-				ignoreInitial: true,
-				awaitWriteFinish: {
-					stabilityThreshold: 3000,
-					pollInterval: 100
-				},
-				atomic: true,
-				disableGlobbing: true,
-				alwaysStat: true,
-				usePolling: this._usePolling,
-				// following will only be effective if usePolling: true
-				interval: 3000,
-				binaryInterval: 3000
-			})
-			.on('error', (err: Error) => {
-				this.logger.error(`Local folder storage: watcher error`, err)
-			})
-			.on('add', this.onAdd)
-			.on('change', this.onChange)
-			.on('unlink', this.onUnlink)
+		switch (this._watcherType) {
+			case FileShareWatcherType.DISABLED:
+				this._initialized = true
+				return Promise.resolve()
+			case FileShareWatcherType.CHOKIDAR:
+				this._watcher = chokidar
+					.watch(this._selectiveListen ? [] : '.', {
+						cwd: this._basePath,
+						ignoreInitial: true,
+						awaitWriteFinish: {
+							stabilityThreshold: 3000,
+							pollInterval: 100
+						},
+						atomic: true,
+						disableGlobbing: true,
+						alwaysStat: true,
+						usePolling: this._usePolling,
+						// following will only be effective if usePolling: true
+						interval: 3000,
+						binaryInterval: 3000
+					})
+					.on('error', (err: Error) => {
+						this.logger.error(`Local folder storage: watcher error`, err)
+					})
+					.on('add', this.onAdd)
+					.on('change', this.onChange)
+					.on('unlink', this.onUnlink)
+				break
+			case FileShareWatcherType.NODE_WATCH:
+				this._initialized = true
+				this._watcher = new FastSelectFileWatcher(this._basePath)
+					.on('error', (err: Error) => {
+						this.logger.error(`Local folder storage: watcher error`, err)
+					})
+					.on('change', this.onChange)
+					.on('unlink', this.onUnlink)
+				return Promise.resolve()
+		}
 
 		return new Promise<void>(resolve => {
 			if (this._selectiveListen) {
@@ -139,7 +160,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 				this._initialized = true
 				setImmediate(resolve)
 			} else {
-				this._watcher.on('ready', () => {
+				this._watcher!.on('ready', () => {
 					this._initialized = true
 					resolve()
 				})
@@ -151,7 +172,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 		return new Promise<void>((resolve, reject) => {
 			setTimeout(() => {
 				if (this._initialized) {
-					this._watcher.close().catch(reject)
+					this._watcher?.close().catch(reject)
 					resolve()
 					return
 				}
@@ -166,13 +187,13 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 
 	addMonitoredFile = (name: string) => {
 		if (this._selectiveListen) {
-			this._watcher.add(name)
+			this._watcher?.add(name)
 		}
 	}
 
 	removeMonitoredFile = (name: string) => {
 		if (this._selectiveListen) {
-			this._watcher.unwatch(name)
+			this._watcher?.unwatch(name)
 		}
 	}
 
