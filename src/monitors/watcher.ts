@@ -157,6 +157,7 @@ export class Watcher extends EventEmitter {
 			doc.mediaPath = mediaPath
 			doc.mediaSize = mediaStat.size
 			doc.mediaTime = mediaStat.mtime.getTime()
+			doc.mediaId = mediaId
 
 			// Assuming generateInfoWhenFound is always false - use work steps
 			// if (generateInfoWhenFound) { // Check if basic file probe should be run in manualMode
