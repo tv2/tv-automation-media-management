@@ -143,6 +143,7 @@ export class CoreHandler {
 		observer.changed = (id1: string) => {
 			this.onDeviceChanged(id1)
 		}
+		this._observers.push(observer)
 		this.setupObserverForPeripheralDeviceCommands(this)
 		return
 	}

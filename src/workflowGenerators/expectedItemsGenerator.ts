@@ -128,6 +128,9 @@ export class ExpectedItemsGenerator extends BaseWorkFlowGenerator {
 		if (this._expectedMediaItemsSubscription) {
 			this._coreHandler.core.unsubscribe(this._expectedMediaItemsSubscription)
 		}
+		if (this.observer) {
+			this.observer.stop()
+		}
 		this._expectedMediaItemsSubscription = await this._coreHandler.core.subscribe('expectedMediaItems', {
 			mediaFlowId: {
 				$in: _.keys(this._handledFlows)
