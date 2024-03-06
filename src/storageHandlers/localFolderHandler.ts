@@ -369,7 +369,7 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 		const platformUrl: string = isWindowsPlatform
 			? url.replace(/^\\/, '')
 			: url.replace(/^\\\\/, '/').replace(/\\/g, '/')
-		if (platformUrl.startsWith(this._basePath)) {
+		if (platformUrl.startsWith(this._basePath.replace(/^\\/, ''))) {
 			return platformUrl.substr(this._basePath.length)
 		}
 		throw new Error(`This storage handler does not support file URL "${url}"`)
