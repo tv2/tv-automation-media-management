@@ -11,6 +11,7 @@ import { CancelablePromise } from '../lib/cancelablePromise'
 import { LoggerInstance } from 'winston'
 import { FileShareWatcherType } from '../configManifest'
 import { FastSelectFileWatcher } from './fastSelectFileWatcher'
+import * as process from 'process'
 
 /**
  * A shared method to get the file properties from the underlying file system.
@@ -364,8 +365,12 @@ export class LocalFolderHandler extends EventEmitter implements StorageHandler {
 	}
 
 	parseUrl(url: string): string {
-		if (url.startsWith(this._basePath)) {
-			return url.substr(this._basePath.length).replace(/^\\/, '')
+		const isWindowsPlatform: boolean = process.platform === 'win32'
+		const platformUrl: string = isWindowsPlatform
+			? url.replace(/^\\/, '')
+			: url.replace(/^\\\\/, '/').replace(/\\/g, '/')
+		if (platformUrl.startsWith(this._basePath.replace(/^\\/, ''))) {
+			return platformUrl.substr(this._basePath.length)
 		}
 		throw new Error(`This storage handler does not support file URL "${url}"`)
 	}
